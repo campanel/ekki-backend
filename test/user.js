@@ -73,8 +73,25 @@ describe("users", () => {
                 });
         });
 
-        //Criar novo contato
-        it('POST user', (done) => {
+        //update do usuário
+        it('UPDATE user name', (done) => {
+            chai.request(app)
+            .put('/api/users/' + user.id )
+            .send({
+                    name: "The Lord of Update",
+                }
+            )
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('message').eql('User updated!');
+            done();
+            });
+            
+        });
+
+        //Criar contato
+        it('POST contact', (done) => {
             chai.request(app)
             .post(`/api/users/${user.id}/contacts`)
             .send(contactTest)
@@ -101,21 +118,16 @@ describe("users", () => {
             });
         });
 
-        //update do usuário
-        it('UPDATE user', (done) => {
+        //detach contato
+        it('DETACH contact', (done) => {
             chai.request(app)
-            .put('/api/users/' + user.id )
-            .send({
-                    name: "The Lord of Update",
-                }
-            )
+            .delete(`/api/users/${user.id}/contacts/${contact.contact_id}`)
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
-                res.body.should.have.property('message').eql('User updated!');
+                res.body.should.have.property('message').eql('Contact deleted!');
             done();
             });
-            
         });
         
         //deletar usuário
@@ -130,8 +142,8 @@ describe("users", () => {
             });
         });
 
-        //deletar contato
-        it('DELETE contact', (done) => {
+        //deletar usuario criado como contato
+        it('DELETE user contact', (done) => {
             chai.request(app)
             .delete('/api/users/' + contact.contact_id )
             .end((err, res) => {

@@ -37,7 +37,7 @@ class User extends Model {
   }
 
   static getContactByDocument(doc) {
-    return this.query().select('id', 'name', 'document', 'cellphone').where('document', doc).first();
+    return this.query().select('id as contact_id', 'name', 'document', 'cellphone').where('document', doc).first();
   }
 
   static getLast() {
@@ -50,9 +50,22 @@ class User extends Model {
     .insertGraph(data);
   }
 
+  static async createContact(data) {
+    let contact = {};
+    const newContact =  await User.create(data);
+
+    contact.contact_id = newContact.id;
+    contact.name = newContact.name ? newContact.name: null; ;
+    contact.document = newContact.document;
+    contact.cellphone = newContact.cellphone ? newContact.cellphone: null;
+      
+    return contact;
+  }
+
   static async getOrCreateContact(data) {
     let contact = await User.getContactByDocument(data.document);
-    if(!contact) contact = await User.create(data);
+    if(!contact) contact = await User.createContact(data);
+    console.log(contact);
     return contact;
   }
 
@@ -74,11 +87,17 @@ class User extends Model {
   }
 
   async attachUniqueContact(contact) {
-    const contacts = await this.getContacts();
-    
-    const relate = await contacts.find(c => c.contact_id === parseInt(contact.id));
-    if(!relate) await this.$relatedQuery('contacts').relate(contact.id);
+    const contacts = await this.getContacts();    
+    const relate = await contacts.find(c => c.contact_id === parseInt(contact.contact_id));
+    if(!relate) await this.$relatedQuery('contacts').relate(contact.contact_id);
     return contact;
+  }
+
+  async detachContact(contact_id) {
+    const numUnrelatedRows = await this.$relatedQuery('contacts')
+  .unrelate()
+  .where('contact_id', contact_id);
+    return true;
   }
 
   async contactAttached(data) {
@@ -86,14 +105,15 @@ class User extends Model {
     const contact = await User.getContactByDocument(data.document);
     
     if(!contact) return false;
-    const relate = await contacts.find(c => c.contact_id === parseInt(contact.id));
+    const relate = await contacts.find(c => c.contact_id === parseInt(contact.contact_id));
     if(!relate) return false;
     return relate;
   }
 
   async getContacts() {
     const user = await User.query().findById(this.id).eager('contacts');
-    return await user.contacts;
+    const contacts = user.contacts.sort((a, b) => a.name.localeCompare(b.name));
+    return await contacts;
   }
 }
 

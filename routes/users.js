@@ -16,4 +16,6 @@ router.post('/:id/contacts', UserController.setOrCreateContact);
 
 router.get('/:id/contacts', UserController.getContacts);
 
+router.delete('/:id/contacts/:contact_id', UserController.detachContact);
+
 module.exports = router;

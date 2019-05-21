@@ -107,11 +107,29 @@ class UserController {
 
       //verificar se usuario ja foi add as contatos
       let contactAttached = await user.contactAttached(req.body);
-      if (contactAttached) return res.json({ success: true, data: contactAttached, message: 'Contact Attached!'});
+      if (contactAttached) return res.json({ success: true, data: contactAttached, newuser: false, message: 'Contact Attached!'});
 
       const contact = await user.setOrCreateContact(req.body);
-      res.json({ success: true, data: contact, message: 'Contact created!'});
+      res.json({ success: true, data: contact, newuser: true, message: 'Contact created!'});
 
+    } catch (err) {
+      logger.error(err);
+      console.log(err);
+      res.json({ success: false, message: 'Internal error'}).status(500);
+    }
+  };
+
+  static async detachContact(req, res) {
+    try {
+      const { error } = UserSchemas.Schema.validate(req.params, UserSchemas.deleteContact);
+      if (error) return res.status(400).json({ success: false, message: error.details[0].message});
+
+      const user = await User.getById(req.params.id);
+      if (!user) return res.status(404).json({ success: false, message:'User not found.'});
+
+      await user.detachContact(req.params.contact_id);
+
+      res.json({ success: true, message: 'Contact deleted!' , data: []});
     } catch (err) {
       logger.error(err);
       res.json({ success: false, message: 'Internal error'}).status(500);

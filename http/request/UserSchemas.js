@@ -8,10 +8,15 @@ const user = {
     document: Joi.string().required()
 };
 
+const deleteContact = {
+    id : Joi.number().integer().required(),
+    contact_id : Joi.number().integer().required(),
+};
+
 class Schema {
     static validate(obj, schema){
         return Joi.validate(obj, schema);
       }
   }
   
-module.exports = {id, user, Schema};
+module.exports = {Schema, id, user, deleteContact};
