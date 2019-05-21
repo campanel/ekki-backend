@@ -15,6 +15,7 @@ class User extends Model {
       contacts: {
         relation: Model.ManyToManyRelation,
         modelClass: User,
+        filter: query => query.select('user_contact.contact_id', 'name', 'document', 'cellphone'),
         join: {
           from: 'users.id',
           through: {
@@ -35,16 +36,12 @@ class User extends Model {
     return this.query().findById(id);
   }
 
-  static getByDocument(doc) {
-    return this.query().where('document', doc).first();
+  static getContactByDocument(doc) {
+    return this.query().select('id', 'name', 'document', 'cellphone').where('document', doc).first();
   }
 
   static getLast() {
     return this.query().orderBy('id', 'desc').first();
-  }
-
-  static getByIdWithContacs(id) {
-    return this.query().findById(id).eager('contacts');
   }
 
   static create(data) {
@@ -53,34 +50,51 @@ class User extends Model {
     .insertGraph(data);
   }
 
-  static async createContact(userId, data) {
-
-    let contact = await this.createOrGetByDocument(data);
-    return this.setContactByUserId(userId, contact);
-  }
-
-  static async createOrGetByDocument(data) {
-    let user = await this.getByDocument(data.document);
-    if(!user) user = await this.create(data);
-    return user;
-  }
-
-  static async setContactByUserId(userId, contact) {
-    const user = await this.getByIdWithContacs(userId);
-    const relate = user.contacts.find(c => c.id === parseInt(contact.id));
-
-    if(!relate) await user.$relatedQuery('contacts').relate(contact.id);
-
+  static async getOrCreateContact(data) {
+    let contact = await User.getContactByDocument(data.document);
+    if(!contact) contact = await User.create(data);
     return contact;
   }
 
-  static update(id, data) {
-    return this.query()
-    .patchAndFetchById(id, data);    
+  //funções não estaticas
+
+  async update(data) {
+    return await User.query()
+    .patchAndFetchById(this.id, data);    
   }
 
-  static deleteById(userId) {
-    return this.query().deleteById(userId);
+  delete() {
+    return User.query().deleteById(this.id);
+  }
+
+  async setOrCreateContact(data) {
+    let contact = await User.getOrCreateContact(data);
+    contact = await this.attachUniqueContact(contact);
+    return contact;
+  }
+
+  async attachUniqueContact(contact) {
+    const contacts = await this.getContacts();
+    
+    const relate = await contacts.find(c => c.contact_id === parseInt(contact.id));
+    if(!relate) await this.$relatedQuery('contacts').relate(contact.id);
+    return contact;
+  }
+
+  async contactAttached(data) {
+    const contacts = await this.getContacts();
+    const contact = await User.getContactByDocument(data.document);
+    
+    if(!contact) return false;
+    const relate = await contacts.find(c => c.contact_id === parseInt(contact.id));
+    if(!relate) return false;
+    return relate;
+  }
+
+  async getContacts() {
+    const user = await User.query().findById(this.id).eager('contacts');
+    return await user.contacts;
+    //return ['oi','io'];
   }
 }
 

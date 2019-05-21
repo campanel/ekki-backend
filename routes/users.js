@@ -12,6 +12,8 @@ router.put('/:id', UserController.update);
 
 router.delete('/:id', UserController.delete);
 
-router.post('/:id/contact', UserController.createContact);
+router.post('/:id/contacts', UserController.setOrCreateContact);
+
+router.get('/:id/contacts', UserController.getContacts);
 
 module.exports = router;

@@ -6,42 +6,40 @@ const app = require('../app');
 chai.use(chaiHttp);
 chai.should();
 
-var userTest = { id : 1};
+var userTest = {
+    name: "The Lord",
+    document: "004" + Math.floor((Math.random() * 100000) + 1),
+};
+
+var contactTest = {
+    name: "Sr Contact",
+    document: "005" + Math.floor((Math.random() * 100000) + 1),
+};
 
 describe("users", () => {
-    describe("GET /users", () => {
-        // Test to get all users record
-        it("should get all users record", (done) => {
+    describe("GET /api/users", () => {
+        
+        // trazer todos os usuarios
+        it("Todos usuarios", (done) => {
              chai.request(app)
-                 .get('/users')
+                 .get('/api/users')
                  .end((err, res) => {
                      res.should.have.status(200);
                      res.body.should.be.a('object');
                      done();
                   });
          });
-        // Test to get single user record
-        it("should get a single users record", (done) => {
-             const id = 1;
-             chai.request(app)
-                 .get(`/users/${id}`)
-                 .end((err, res) => {
-                     res.should.have.status(200);
-                     res.body.should.be.a('object');
-                     done();
-                  });
-         });  
         
     });
-    describe('POST, UPDATE, DELETE users', () => {
-        let user = {
-            name: "The Lord",
-            document: "00438178099",
-        }
-        it('it should not POST a user', (done) => {
+    describe('POST, GET, UPDATE, DELETE , GET CONTACTS, users', () => {
+        let user = {}
+        let contact = {}
+
+        //criar usuário
+        it('POST user', (done) => {
               chai.request(app)
-              .post('/users')
-              .send(user)
+              .post('/api/users')
+              .send(userTest)
               .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');
@@ -52,9 +50,61 @@ describe("users", () => {
               });
         });
 
-        it('it should UPDATE a user given the id', (done) => {
+        // trazer usuario
+        it("GET Usuario", (done) => {
             chai.request(app)
-            .put('/users/' + user.id )
+                .get(`/api/users/${user.id}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    done();
+                 });
+        });
+
+        //trazer contatos do usuário
+        it("GET contatos do usuario", (done) => {
+            chai.request(app)
+                .get(`/api/users/${user.id}/contacts`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    console.log(res.body);
+                    done();
+                });
+        });
+
+        //Criar novo contato
+        it('POST user', (done) => {
+            chai.request(app)
+            .post(`/api/users/${user.id}/contacts`)
+            .send(contactTest)
+            .end((err, res) => {
+                  res.should.have.status(200);
+                  res.body.should.be.a('object');
+                  res.body.should.have.property('message').eql('Contact created!');
+              done();
+            });
+        });
+
+        //Criar contato com mesmo CPF e ja associado deve retornar, ja associado
+        it('POST user', (done) => {
+            chai.request(app)
+            .post(`/api/users/${user.id}/contacts`)
+            .send(contactTest)
+            .end((err, res) => {
+                  res.should.have.status(200);
+                  res.body.should.be.a('object');
+                  res.body.should.have.property('message').eql('Contact Attached!');
+                  //ID contact
+                  contact.contact_id = res.body.data.contact_id;
+              done();
+            });
+        });
+
+        //update do usuário
+        it('UPDATE user', (done) => {
+            chai.request(app)
+            .put('/api/users/' + user.id )
             .send({
                     name: "The Lord of Update",
                 }
@@ -68,9 +118,22 @@ describe("users", () => {
             
         });
         
-        it('it should DELETE a user given the id', (done) => {
+        //deletar usuário
+        it('DELETE user', (done) => {
             chai.request(app)
-            .delete('/users/' + user.id )
+            .delete('/api/users/' + user.id )
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('message').eql('User deleted!');
+            done();
+            });
+        });
+
+        //deletar contato
+        it('DELETE contact', (done) => {
+            chai.request(app)
+            .delete('/api/users/' + contact.contact_id )
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
