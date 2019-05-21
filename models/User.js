@@ -94,7 +94,6 @@ class User extends Model {
   async getContacts() {
     const user = await User.query().findById(this.id).eager('contacts');
     return await user.contacts;
-    //return ['oi','io'];
   }
 }
 

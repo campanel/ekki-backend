@@ -1,5 +1,6 @@
 const User = require('../../models/User');
 const UserSchemas = require('../request/UserSchemas');
+const logger = require('../../config/logger');
 
 class UserController {
   
@@ -8,8 +9,8 @@ class UserController {
       const users = await User.getAll();
       res.json({ success: true, data: users});
     } catch (err) {
-      console.log(err);
-      res.json({ success: false, message: err}).status(500);
+      logger.error(err);
+      res.json({ success: false, message: 'Internal error'}).status(500);
     }
   };
 
@@ -24,8 +25,8 @@ class UserController {
 
       res.json({ success: true, data: user });
     } catch (err) {
-      console.log(err);
-      res.json({ success: false, message: err }).status(500);
+      logger.error(err);
+      res.json({ success: false, message: 'Internal error'}).status(500);
     }
   };
   
@@ -38,8 +39,8 @@ class UserController {
       res.json({ success: true, data: user, message: 'User created!'});
 
     } catch (err) {
-      console.log(err);
-      res.json({ success: false, message: err}).status(500);
+      logger.error(err);
+      res.json({ success: false, message: 'Internal error'}).status(500);
     }
   };
 
@@ -57,8 +58,8 @@ class UserController {
       user = await user.update(req.body);
       res.json({ success: true, data: user, message: 'User updated!' });
     } catch (err) {
-      console.log(err);
-      res.json({ success: false, message: err}).status(500);
+      logger.error(err);
+      res.json({ success: false, message: 'Internal error'}).status(500);
     }
 
   };
@@ -75,8 +76,8 @@ class UserController {
 
       res.json({ success: true, message: 'User deleted!' , data: []});
     } catch (err) {
-      console.log(err);
-      res.json({ success: false, message: err }).status(500);
+      logger.error(err);
+      res.json({ success: false, message: 'Internal error'}).status(500);
     }
   };
 
@@ -91,8 +92,8 @@ class UserController {
       res.json({ success: true, data: await user.getContacts() });
 
     } catch (err) {
-      console.log(err);
-      res.json({ success: false, message: err }).status(500);
+      logger.error(err);
+      res.json({ success: false, message: 'Internal error'}).status(500);
     }
   };
 
@@ -112,8 +113,8 @@ class UserController {
       res.json({ success: true, data: contact, message: 'Contact created!'});
 
     } catch (err) {
-      console.log(err);
-      res.json({ success: false, message: err}).status(500);
+      logger.error(err);
+      res.json({ success: false, message: 'Internal error'}).status(500);
     }
   };
 
