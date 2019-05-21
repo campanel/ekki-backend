@@ -18,4 +18,8 @@ router.get('/:id/contacts', UserController.getContacts);
 
 router.delete('/:id/contacts/:contact_id', UserController.detachContact);
 
+router.post('/:id/transfers', UserController.transferMoney);
+
+router.get('/:id/transfers', UserController.getTransfers);
+
 module.exports = router;

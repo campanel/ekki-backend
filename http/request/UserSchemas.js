@@ -8,9 +8,14 @@ const user = {
     document: Joi.string().required()
 };
 
-const deleteContact = {
+const userAndContact = {
     id : Joi.number().integer().required(),
     contact_id : Joi.number().integer().required(),
+};
+
+const transfer = {
+    contact_id : Joi.number().integer().required(),
+    value : Joi.number().integer().required(),
 };
 
 class Schema {
@@ -19,4 +24,4 @@ class Schema {
       }
   }
   
-module.exports = {Schema, id, user, deleteContact};
+module.exports = {Schema, id, user, userAndContact, transfer};

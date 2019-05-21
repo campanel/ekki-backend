@@ -1,7 +1,8 @@
 const Knex = require('knex');
 const connection = require('../knexfile');
 const { Model } = require('objection');
-const knexConnection = Knex(connection)
+const knexConnection = Knex(connection);
+const Transfer = require('./Transfer');
 
 Model.knex(knexConnection)
 
@@ -25,6 +26,20 @@ class User extends Model {
           to: 'users.id'
         }
       },
+
+      transfers: {
+        relation: Model.ManyToManyRelation,
+        modelClass: User,
+        filter: query => query.select('transfers.id as transfer_id', 'transfers.contact_id', 'name', 'document', 'transfers.value', 'transfers.updated_at'),
+        join: {
+          from: 'users.id',
+          through: {
+            from: 'transfers.user_id',
+            to: 'transfers.contact_id',
+          },
+          to: 'users.id'
+        }
+      },
     };
   }
 
@@ -38,6 +53,10 @@ class User extends Model {
 
   static getContactByDocument(doc) {
     return this.query().select('id as contact_id', 'name', 'document', 'cellphone').where('document', doc).first();
+  }
+
+  static getContactById(id) {
+    return this.query().select('id as contact_id', 'name', 'document', 'cellphone').where('id', id).first();
   }
 
   static getLast() {
@@ -68,8 +87,6 @@ class User extends Model {
     console.log(contact);
     return contact;
   }
-
-  //funções não estaticas
 
   async update(data) {
     return await User.query()
@@ -114,6 +131,21 @@ class User extends Model {
     const user = await User.query().findById(this.id).eager('contacts');
     const contacts = user.contacts.sort((a, b) => a.name.localeCompare(b.name));
     return await contacts;
+  }
+
+  //tranfers
+  async transferMoney(contact_id, value) {
+    const transfer =  await Transfer.attachWithMoney(this.id, contact_id, value);
+    return transfer;
+  }
+
+  async getTransfers() {
+    const user = await User.query().findById(this.id).eager('transfers');
+    const transfers = user.transfers.sort(function(a, b) {
+      var dateA = new Date(b.updated_at), dateB = new Date(a.updated_at);
+      return dateA - dateB;
+  });
+    return transfers;
   }
 }
 
