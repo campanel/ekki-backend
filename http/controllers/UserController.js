@@ -10,7 +10,7 @@ class UserController {
       res.json({ success: true, data: users});
     } catch (err) {
       logger.error(err);
-      res.json({ success: false, message: 'Internal error'}).status(500);
+      res.status(500).json({ success: false, message: 'Internal error'});
     }
   };
 
@@ -26,7 +26,7 @@ class UserController {
       res.json({ success: true, data: user });
     } catch (err) {
       logger.error(err);
-      res.json({ success: false, message: 'Internal error'}).status(500);
+      res.status(500).json({ success: false, message: 'Internal error'});
     }
   };
   
@@ -40,7 +40,7 @@ class UserController {
 
     } catch (err) {
       logger.error(err);
-      res.json({ success: false, message: 'Internal error'}).status(500);
+      res.status(500).json({ success: false, message: 'Internal error'});
     }
   };
 
@@ -59,7 +59,7 @@ class UserController {
       res.json({ success: true, data: user, message: 'User updated!' });
     } catch (err) {
       logger.error(err);
-      res.json({ success: false, message: 'Internal error'}).status(500);
+      res.status(500).json({ success: false, message: 'Internal error'});
     }
 
   };
@@ -77,7 +77,7 @@ class UserController {
       res.json({ success: true, message: 'User deleted!' , data: []});
     } catch (err) {
       logger.error(err);
-      res.json({ success: false, message: 'Internal error'}).status(500);
+      res.status(500).json({ success: false, message: 'Internal error'});
     }
   };
 
@@ -93,7 +93,7 @@ class UserController {
 
     } catch (err) {
       logger.error(err);
-      res.json({ success: false, message: 'Internal error'}).status(500);
+      res.status(500).json({ success: false, message: 'Internal error'});
     }
   };
 
@@ -114,8 +114,7 @@ class UserController {
 
     } catch (err) {
       logger.error(err);
-      console.log(err);
-      res.json({ success: false, message: 'Internal error'}).status(500);
+      res.status(500).json({ success: false, message: 'Internal error'});
     }
   };
 
@@ -150,12 +149,15 @@ class UserController {
       const contact = await User.getContactById(req.body.contact_id);
       if (!contact) return res.status(404).json({ success: false, message:'Contact not found.'});
 
-      const transfer = await user.transferMoney(req.body.contact_id, req.body.value);
-
-      res.json({ success: true, message: 'Successful transfer!' , data: []});
+      const {code, message, transfer} = await user.transferMoney(req.body.contact_id, req.body.value);
+      
+      if (code > 100){
+        return res.status(500).json({ success: false, message: message , data: []});
+      } 
+      res.json({ success: true, code: code, message: message , data: transfer});
     } catch (err) {
       logger.error(err);
-      res.json({ success: false, message: 'Internal error'}).status(500);
+      res.status(500).json({ success: false, message: 'Internal error'});
     }
   };
 
@@ -171,7 +173,7 @@ class UserController {
 
     } catch (err) {
       logger.error(err);
-      res.json({ success: false, message: 'Internal error'}).status(500);
+      res.status(500).json({ success: false, message: 'Internal error'});
     }
   };
 

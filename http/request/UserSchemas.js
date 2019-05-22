@@ -5,7 +5,8 @@ const id = {
 
 const user = {
     name : Joi.string().min(3).required(),
-    document: Joi.string().required()
+    document: Joi.string().required(),
+    cellphone: Joi.string()
 };
 
 const userAndContact = {
@@ -15,7 +16,7 @@ const userAndContact = {
 
 const transfer = {
     contact_id : Joi.number().integer().required(),
-    value : Joi.number().integer().required(),
+    value : Joi.number().required(),
 };
 
 class Schema {

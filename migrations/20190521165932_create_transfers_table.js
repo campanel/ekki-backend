@@ -9,14 +9,16 @@ exports.up = function(knex, Promise) {
               .unsigned()
               .references('id')
               .inTable('users')
+              .onDelete('CASCADE')
               .index();
             table
               .integer('contact_id')
               .unsigned()
               .references('id')
               .inTable('users')
+              .onDelete('CASCADE')
               .index();
-            table.integer('value')
+            table.string('value')
             table.timestamps(true, true)
           })
       ])

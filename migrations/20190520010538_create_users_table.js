@@ -7,8 +7,8 @@ exports.up = function(knex, Promise) {
           table.string('name');
           table.string('document').unique();
           table.string('cellphone');
-          table.integer('balance').defaultTo('1000');
-          table.integer('limit').defaultTo('500');
+          table.string('balance').defaultTo('1000');
+          table.string('limit').defaultTo('500');
           table.timestamps(true, true)
         })
         .createTable('user_contact', table => {
@@ -18,14 +18,12 @@ exports.up = function(knex, Promise) {
               .unsigned()
               .references('id')
               .inTable('users')
-              .onDelete('CASCADE')
               .index();
             table
               .integer('contact_id')
               .unsigned()
               .references('id')
               .inTable('users')
-              .onDelete('CASCADE')
               .index();
             table.timestamps(true, true)
           })

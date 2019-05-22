@@ -68,7 +68,6 @@ describe("users", () => {
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');
-                    console.log(res.body);
                     done();
                 });
         });
@@ -114,6 +113,69 @@ describe("users", () => {
                   res.body.should.have.property('message').eql('Contact Attached!');
                   //ID contact
                   contact.contact_id = res.body.data.contact_id;
+              done();
+            });
+        });
+
+        //trazer tranferencias do usuário
+        it("GET transferencias do usuario", (done) => {
+            chai.request(app)
+                .get(`/api/users/${user.id}/transfers`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    done();
+                });
+        });
+
+        //tranferencia acima do valor
+        it('POST transferencia acima do valor', (done) => {
+            chai.request(app)
+            .post(`/api/users/${user.id}/transfers`)
+            .send({contact_id : contact.contact_id, value: 2000})
+            .end((err, res) => {
+                  res.should.have.status(500);
+                  res.body.should.be.a('object');
+                  res.body.should.have.property('message').eql('Saldo insuficiente!');
+              done();
+            });
+        });
+
+        //tranferencia dentro do valor
+        it('POST transferencia dentro do valor(750)', (done) => {
+            chai.request(app)
+            .post(`/api/users/${user.id}/transfers`)
+            .send({contact_id : contact.contact_id, value: 750})
+            .end((err, res) => {
+                  res.should.have.status(200);
+                  res.body.should.be.a('object');
+                  res.body.should.have.property('message').eql('Transferência realizada com sucesso!');
+              done();
+            });
+        });
+
+        //tranferencia de mesmo valor em menos de 2 minutos do valor
+        it('POST tranferencia de mesmo valor em menos de 2 minutos do valor', (done) => {
+            chai.request(app)
+            .post(`/api/users/${user.id}/transfers`)
+            .send({contact_id : contact.contact_id, value: 750})
+            .end((err, res) => {
+                  res.should.have.status(200);
+                  res.body.should.be.a('object');
+                  res.body.should.have.property('message').eql('Transferência atualizada!');
+              done();
+            });
+        });
+
+        //tranferencia utilizacao do limite
+        it('POST tranferencia utilizacao do limite (600)', (done) => {
+            chai.request(app)
+            .post(`/api/users/${user.id}/transfers`)
+            .send({contact_id : contact.contact_id, value: 600})
+            .end((err, res) => {
+                  res.should.have.status(200);
+                  res.body.should.be.a('object');
+                  res.body.should.have.property('message').eql('O limite foi utilizado nesta transferência!');
               done();
             });
         });
