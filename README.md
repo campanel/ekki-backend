@@ -36,5 +36,9 @@ nodemon index.js
 
 http://localhost:3000/api/users
 
+### API doc
+https://documenter.getpostman.com/view/192833/S1TN8hiX?version=latest
+
 ### test
 npm run test
+
